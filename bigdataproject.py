@@ -74,9 +74,7 @@ yearly_s["region"] = yearly_s["region"].astype(str).str.strip().str.upper()
 yearly_n["extent"] = pd.to_numeric(yearly_n["extent"], errors="coerce")
 yearly_s["extent"] = pd.to_numeric(yearly_s["extent"], errors="coerce")
 
-# ---------------------------------------------
-# 방법 1: 서브플롯으로 북극/남극 따로 보기 (추천!)
-# ---------------------------------------------
+
 fig = make_subplots(
     rows=1, cols=2,
     subplot_titles=("Arctic Sea Ice", "Antarctic Sea Ice"),
@@ -164,9 +162,7 @@ fig.update_layout(
 
 fig.show()
 
-# ---------------------------------------------
-# 방법 2: 시계열 라인 차트 (가장 명확!)
-# ---------------------------------------------
+
 fig2 = go.Figure()
 
 fig2.add_trace(go.Scatter(
@@ -198,9 +194,6 @@ fig2.update_layout(
 
 fig2.show()
 
-import pandas as pd
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import numpy as np
 
 # 데이터 로드 및 정리
@@ -209,9 +202,7 @@ temperature = temperature.replace('***', pd.NA)
 temperature['J-D'] = pd.to_numeric(temperature['J-D'], errors='coerce')
 temperature_jd = temperature[['Year', 'J-D']].dropna()
 
-# ---------------------------------------------
-# 방법 2: 색상으로 온난화 표현 (히트맵 스타일)
-# ---------------------------------------------
+
 fig2 = go.Figure()
 
 fig2.add_trace(go.Bar(
@@ -219,7 +210,7 @@ fig2.add_trace(go.Bar(
     y=temperature_jd['J-D'],
     marker=dict(
         color=temperature_jd['J-D'],
-        colorscale='RdBu_r',  # 파란색(차가움) -> 빨간색(더움)
+        colorscale='RdBu_r', 
         colorbar=dict(title='온도 편차 (°C)'),
         cmin=-0.5,
         cmax=1.5
@@ -240,12 +231,10 @@ fig2.update_layout(
 
 fig2.show()
 
-# ---------------------------------------------
-# 방법 3: 10년 평균 이동평균 + 원본 데이터
-# ---------------------------------------------
+
 fig3 = go.Figure()
 
-# 원본 데이터 (연한 색)
+# 원본 데이터
 fig3.add_trace(go.Scatter(
     x=temperature_jd['Year'],
     y=temperature_jd['J-D'],
@@ -280,10 +269,8 @@ fig3.update_layout(
 
 fig3.show()
 
-# ---------------------------------------------
-# 통계 정보 출력
-# ---------------------------------------------
-print("\n📊 온도 데이터 통계:")
+
+print("\n 온도 데이터 통계:")
 print(f"데이터 범위: {temperature_jd['Year'].min():.0f}년 - {temperature_jd['Year'].max():.0f}년")
 print(f"가장 추웠던 해: {temperature_jd.loc[temperature_jd['J-D'].idxmin(), 'Year']:.0f}년 ({temperature_jd['J-D'].min():.2f}°C)")
 print(f"가장 더웠던 해: {temperature_jd.loc[temperature_jd['J-D'].idxmax(), 'Year']:.0f}년 ({temperature_jd['J-D'].max():.2f}°C)")
@@ -296,11 +283,7 @@ print(f"총 온난화 (1880-2024): {(z[0] * (2024-1880)):.2f}°C")
 recent_10 = temperature_jd.tail(10)['J-D'].mean()
 print(f"최근 10년 평균: {recent_10:.2f}°C")
 
-import pandas as pd
-import plotly.graph_objects as go
-import numpy as np
 
-# 데이터 로드
 sea_level = pd.read_csv('/content/GMSL_TPJAOS_5.2.txt', sep=r'\s+', header=None)
 df_selected = sea_level.iloc[:, [2, 8]].copy()
 df_selected.columns = ['year_fraction', 'GMSL_GIA']
@@ -308,9 +291,7 @@ df_selected.columns = ['year_fraction', 'GMSL_GIA']
 # 연도를 정수로 변환
 df_selected['year'] = df_selected['year_fraction'].astype(int)
 
-# ---------------------------------------------
-# 그래프 1: 기본 라인 차트 + 추세선
-# ---------------------------------------------
+
 fig1 = go.Figure()
 
 # 실제 해수면 데이터
@@ -346,9 +327,7 @@ fig1.update_layout(
 
 fig1.show()
 
-# ---------------------------------------------
-# 그래프 2: 연도별 해수면 상승량 (바 차트)
-# ---------------------------------------------
+
 # 연평균 계산
 yearly_avg = df_selected.groupby('year')['GMSL_GIA'].mean().reset_index()
 yearly_avg['상승량'] = yearly_avg['GMSL_GIA'].diff()
@@ -378,7 +357,7 @@ fig2.update_layout(
 fig2.show()
 
 # 통계 정보
-print("\n🌊 해수면 변화 통계:")
+print("\n 해수면 변화 통계:")
 print(f"데이터 범위: {df_selected['year_fraction'].min():.2f}년 - {df_selected['year_fraction'].max():.2f}년")
 print(f"총 상승량: {df_selected['GMSL_GIA'].iloc[-1] - df_selected['GMSL_GIA'].iloc[0]:.2f}mm")
 print(f"평균 상승 속도: {z[0]:.2f}mm/년")
@@ -388,9 +367,6 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 
-# ---------------------------------------------
-# 데이터 로드 및 정리
-# ---------------------------------------------
 
 # 해수면 데이터
 sea_level = pd.read_csv('/content/GMSL_TPJAOS_5.2.txt', sep=r'\s+', header=None)
@@ -442,9 +418,7 @@ temp_norm = normalize(df_temp_common['temperature'])
 sea_norm = normalize(df_sea_yearly['GMSL_GIA'])
 arctic_norm = 100 - normalize(df_ice_common['arctic'])  # 감소이므로 반전
 
-# ---------------------------------------------
-# 상관관계 대시보드
-# ---------------------------------------------
+
 fig = make_subplots(
     rows=1, cols=3,
     subplot_titles=(
@@ -534,24 +508,21 @@ fig.update_layout(
 
 fig.show()
 
-# ---------------------------------------------
-# 통계 요약
-# ---------------------------------------------
-print("\n📊 기후 변화 종합 통계 (1993-2024):")
-print("\n🌡️ 기온:")
+print("\n 기후 변화 종합 통계 (1993-2024):")
+print("\n 기온:")
 print(f"  평균 상승: {df_temp_common['temperature'].mean():.2f}°C")
 print(f"  최대값: {df_temp_common['temperature'].max():.2f}°C ({df_temp_common.loc[df_temp_common['temperature'].idxmax(), 'year']:.0f}년)")
 print(f"  총 상승: {df_temp_common['temperature'].iloc[-1] - df_temp_common['temperature'].iloc[0]:.2f}°C")
 
-print("\n🌊 해수면:")
+print("\n 해수면:")
 print(f"  총 상승: {df_sea_yearly['GMSL_GIA'].iloc[-1] - df_sea_yearly['GMSL_GIA'].iloc[0]:.2f}mm")
 print(f"  연평균 상승률: {(df_sea_yearly['GMSL_GIA'].iloc[-1] - df_sea_yearly['GMSL_GIA'].iloc[0]) / len(df_sea_yearly):.2f}mm/년")
 
-print("\n🧊 북극 해빙:")
+print("\n 북극 해빙:")
 print(f"  총 감소: {df_ice_common['arctic'].iloc[0] - df_ice_common['arctic'].iloc[-1]:.2f} million km²")
 print(f"  감소율: {((df_ice_common['arctic'].iloc[0] - df_ice_common['arctic'].iloc[-1]) / df_ice_common['arctic'].iloc[0] * 100):.1f}%")
 
-print("\n🧊 남극 해빙:")
+print("\n 남극 해빙:")
 print(f"  변화: {df_ice_common['antarctic'].iloc[-1] - df_ice_common['antarctic'].iloc[0]:.2f} million km²")
 
 # 상관계수 계산
@@ -560,6 +531,6 @@ from scipy.stats import pearsonr
 corr_temp_sea, p_temp_sea = pearsonr(merged['temperature'], merged['GMSL_GIA'])
 corr_temp_ice, p_temp_ice = pearsonr(merged['temperature'], merged['arctic'])
 
-print("\n📈 상관관계:")
+print("\n 상관관계:")
 print(f"  기온-해수면 상관계수: {corr_temp_sea:.3f} (p-value: {p_temp_sea:.4f})")
 print(f"  기온-북극해빙 상관계수: {corr_temp_ice:.3f} (p-value: {p_temp_ice:.4f})")
